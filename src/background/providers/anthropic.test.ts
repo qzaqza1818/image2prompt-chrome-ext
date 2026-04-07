@@ -1,9 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { analyzeWithAnthropic } from './anthropic';
 
 describe('analyzeWithAnthropic', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('returns parsed fullPrompt and breakdown on success', async () => {
