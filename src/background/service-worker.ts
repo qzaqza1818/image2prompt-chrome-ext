@@ -5,10 +5,12 @@ import { analyzeWithGoogle } from './providers/google';
 import type { AnalysisResult, AnalyzeMessage, PromptBreakdown } from '../shared/types';
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'image-to-prompt',
-    title: '🪄 Convert to AI Prompt',
-    contexts: ['image'],
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: 'image-to-prompt',
+      title: '🪄 Convert to AI Prompt',
+      contexts: ['image'],
+    });
   });
 });
 
@@ -40,6 +42,7 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
 
   if (!apiKey) {
     await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'NO_API_KEY' });
+    console.warn('[image-to-prompt] No API key configured for provider:', settings.provider);
     return;
   }
 
@@ -49,13 +52,18 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
   try {
     const res = await fetch(imageUrl);
     const blob = await res.blob();
-    mimeType = blob.type || 'image/jpeg';
+    mimeType = blob.type;
+    if (!mimeType) {
+      console.warn('[image-to-prompt] Could not detect MIME type, falling back to image/jpeg');
+      mimeType = 'image/jpeg';
+    }
     const buffer = await blob.arrayBuffer();
     imageBase64 = btoa(
       Array.from(new Uint8Array(buffer), (b) => String.fromCharCode(b)).join('')
     );
   } catch {
     await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'IMAGE_FETCH_FAILED' });
+    console.error('[image-to-prompt] Failed to fetch image:', imageUrl);
     return;
   }
 
@@ -73,6 +81,7 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
     await addToHistory({ ...base, ...result });
   } catch {
     await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'API_CALL_FAILED' });
+    console.error('[image-to-prompt] Provider API call failed');
   }
 }
 
