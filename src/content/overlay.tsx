@@ -21,7 +21,7 @@ export function OverlayButton({ imageUrl }: Props) {
   return (
     <>
       <style>{`
-        button {
+        .overlay-btn {
           position: absolute;
           top: 8px;
           right: 8px;
@@ -38,10 +38,10 @@ export function OverlayButton({ imageUrl }: Props) {
           box-shadow: 0 2px 6px rgba(0,0,0,0.3);
           transition: background 0.15s;
         }
-        button:hover { background: #1557b0; }
-        button.sent { background: #137333; }
+        .overlay-btn:hover { background: #1557b0; }
+        .overlay-btn.sent { background: #137333; }
       `}</style>
-      <button className={sent ? 'sent' : ''} onClick={handleClick}>
+      <button className={`overlay-btn${sent ? ' sent' : ''}`} onClick={handleClick}>
         {sent ? '✓ Sent' : '🪄 Prompt'}
       </button>
     </>

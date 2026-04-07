@@ -1,11 +1,15 @@
 import { createRoot } from 'react-dom/client';
 import { createElement } from 'react';
+import type { Root } from 'react-dom/client';
 import { OverlayButton } from './overlay';
 
 let hostEl: HTMLElement | null = null;
+let reactRoot: Root | null = null;
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 
 function removeOverlay() {
+  reactRoot?.unmount();
+  reactRoot = null;
   hostEl?.remove();
   hostEl = null;
 }
@@ -37,8 +41,8 @@ function showOverlay(img: HTMLImageElement) {
   document.body.appendChild(host);
   hostEl = host;
 
-  const root = createRoot(container);
-  root.render(createElement(OverlayButton, { imageUrl: img.src }));
+  reactRoot = createRoot(container);
+  reactRoot.render(createElement(OverlayButton, { imageUrl: img.src }));
 }
 
 document.addEventListener('mouseover', (e) => {
