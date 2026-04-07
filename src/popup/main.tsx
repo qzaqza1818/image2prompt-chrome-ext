@@ -1,4 +1,4 @@
-import { StrictMode, useState, useEffect } from 'react';
+import { StrictMode, useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { getHistory } from '../shared/storage';
 import type { AnalysisResult } from '../shared/types';
@@ -6,21 +6,28 @@ import type { AnalysisResult } from '../shared/types';
 function Popup() {
   const [latest, setLatest] = useState<AnalysisResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     getHistory().then((h) => setLatest(h[0] ?? null));
   }, []);
 
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
   function copy() {
     if (!latest?.fullPrompt) return;
-    navigator.clipboard.writeText(latest.fullPrompt).catch((err) => console.error('Clipboard write failed:', err));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(latest.fullPrompt)
+      .then(() => {
+        setCopied(true);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => console.error('Clipboard write failed:', err));
   }
 
   function openPanel() {
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-      if (tab?.id) chrome.sidePanel.open({ tabId: tab.id });
+      if (tab?.id) chrome.sidePanel.open({ tabId: tab.id }).catch((err) => console.error('Side panel failed:', err));
     });
   }
 
