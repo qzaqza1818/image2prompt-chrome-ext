@@ -15,10 +15,11 @@ function SidePanel() {
 
   useEffect(() => {
     void loadHistory();
-
-    chrome.storage.onChanged.addListener((_changes, area) => {
+    const listener = (_changes: Record<string, chrome.storage.StorageChange>, area: string) => {
       if (area === 'session') void loadHistory();
-    });
+    };
+    chrome.storage.onChanged.addListener(listener);
+    return () => chrome.storage.onChanged.removeListener(listener);
   }, []);
 
   async function handleClear() {

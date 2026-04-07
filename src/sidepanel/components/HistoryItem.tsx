@@ -10,7 +10,9 @@ export function HistoryItem({ result, onViewDetail }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   function copy(text: string) {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch((err) => {
+      console.error('Clipboard write failed:', err);
+    });
   }
 
   const preview = result.error
@@ -22,7 +24,10 @@ export function HistoryItem({ result, onViewDetail }: Props) {
   return (
     <div style={{ borderBottom: '1px solid #f0f0f0', fontFamily: 'system-ui, sans-serif' }}>
       <div
+        role="button"
+        tabIndex={0}
         onClick={() => setExpanded(!expanded)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(!expanded); }}
         style={{
           padding: '10px 14px',
           display: 'flex',

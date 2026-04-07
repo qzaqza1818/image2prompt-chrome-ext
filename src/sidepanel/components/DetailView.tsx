@@ -15,7 +15,9 @@ const LABEL: React.CSSProperties = {
 
 export function DetailView({ result, onBack }: Props) {
   function copy(text: string) {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch((err) => {
+      console.error('Clipboard write failed:', err);
+    });
   }
 
   const breakdownText = Object.entries(result.breakdown)
@@ -25,7 +27,7 @@ export function DetailView({ result, onBack }: Props) {
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', fontSize: 15 }}>
       <div style={{ background: '#1a73e8', color: 'white', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer', padding: 0 }}>←</button>
+        <button onClick={onBack} aria-label="Back to history" style={{ background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer', padding: 0 }}>←</button>
         <span style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {result.fullPrompt.slice(0, 40) || 'Error'}
         </span>
