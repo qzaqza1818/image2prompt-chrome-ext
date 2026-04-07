@@ -35,10 +35,14 @@ function Options() {
   }
 
   async function handleSave() {
-    await saveSettings(settings).catch((err) => console.error('Failed to save settings:', err));
-    setSaved(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setSaved(false), 2000);
+    try {
+      await saveSettings(settings);
+      setSaved(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+    }
   }
 
   return (
