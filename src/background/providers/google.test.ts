@@ -55,4 +55,28 @@ describe('analyzeWithGoogle', () => {
       analyzeWithGoogle('data', 'image/jpeg', 'key', 'gemini-1.5-flash')
     ).rejects.toThrow('Google API error 403');
   });
+
+  it('throws when response has no content text', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ candidates: [] }),
+    } as Response);
+
+    await expect(
+      analyzeWithGoogle('data', 'image/jpeg', 'key', 'gemini-1.5-flash')
+    ).rejects.toThrow('Google response missing content text');
+  });
+
+  it('throws when response content is not valid JSON', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        candidates: [{ content: { parts: [{ text: 'not json {{{' }] } }],
+      }),
+    } as Response);
+
+    await expect(
+      analyzeWithGoogle('data', 'image/jpeg', 'key', 'gemini-1.5-flash')
+    ).rejects.toThrow('Google response was not valid JSON');
+  });
 });

@@ -51,4 +51,26 @@ describe('analyzeWithOpenAI', () => {
       analyzeWithOpenAI('data', 'image/jpeg', 'key', 'gpt-4o-mini')
     ).rejects.toThrow('OpenAI API error 429');
   });
+
+  it('throws when response has no content text', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ choices: [] }),
+    } as Response);
+
+    await expect(
+      analyzeWithOpenAI('data', 'image/jpeg', 'key', 'gpt-4o-mini')
+    ).rejects.toThrow('OpenAI response missing content');
+  });
+
+  it('throws when response content is not valid JSON', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: 'not json {{{' } }] }),
+    } as Response);
+
+    await expect(
+      analyzeWithOpenAI('data', 'image/jpeg', 'key', 'gpt-4o-mini')
+    ).rejects.toThrow('OpenAI response was not valid JSON');
+  });
 });

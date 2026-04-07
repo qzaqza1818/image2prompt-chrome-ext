@@ -54,4 +54,26 @@ describe('analyzeWithAnthropic', () => {
       analyzeWithAnthropic('data', 'image/jpeg', 'bad-key', 'claude-haiku-4-5-20251001')
     ).rejects.toThrow('Anthropic API error 401');
   });
+
+  it('throws when response has no content text', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ content: [] }),
+    } as Response);
+
+    await expect(
+      analyzeWithAnthropic('data', 'image/jpeg', 'key', 'claude-haiku-4-5-20251001')
+    ).rejects.toThrow('Anthropic response missing content text');
+  });
+
+  it('throws when response content is not valid JSON', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ content: [{ text: 'not valid json {{{' }] }),
+    } as Response);
+
+    await expect(
+      analyzeWithAnthropic('data', 'image/jpeg', 'key', 'claude-haiku-4-5-20251001')
+    ).rejects.toThrow('Anthropic response was not valid JSON');
+  });
 });
