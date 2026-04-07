@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 
 const storageSyncData: Record<string, unknown> = {};
 const storageSessionData: Record<string, unknown> = {};
