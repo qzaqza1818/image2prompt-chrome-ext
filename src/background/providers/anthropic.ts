@@ -38,6 +38,15 @@ export async function analyzeWithAnthropic(
   }
 
   const data = await response.json();
-  const text: string = data.content[0].text;
-  return JSON.parse(text) as { fullPrompt: string; breakdown: PromptBreakdown };
+  const text: string = data.content?.[0]?.text;
+  if (!text) {
+    throw new Error(`Anthropic response missing content text`);
+  }
+  let parsed: { fullPrompt: string; breakdown: PromptBreakdown };
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error(`Anthropic response was not valid JSON: ${text.slice(0, 200)}`);
+  }
+  return parsed;
 }
