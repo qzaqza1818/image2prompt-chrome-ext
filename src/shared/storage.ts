@@ -16,16 +16,16 @@ export async function saveSettings(settings: Settings): Promise<void> {
 }
 
 export async function getHistory(): Promise<AnalysisResult[]> {
-  const data = await chrome.storage.session.get('history');
+  const data = await chrome.storage.local.get('history');
   return (data.history as AnalysisResult[]) ?? [];
 }
 
 export async function addToHistory(result: AnalysisResult): Promise<void> {
   const history = await getHistory();
   const updated = [result, ...history].slice(0, HISTORY_MAX);
-  await chrome.storage.session.set({ history: updated });
+  await chrome.storage.local.set({ history: updated });
 }
 
 export async function clearHistory(): Promise<void> {
-  await chrome.storage.session.set({ history: [] });
+  await chrome.storage.local.set({ history: [] });
 }

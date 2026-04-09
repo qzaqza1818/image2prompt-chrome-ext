@@ -61,9 +61,9 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
     imageBase64 = btoa(
       Array.from(new Uint8Array(buffer), (b) => String.fromCharCode(b)).join('')
     );
-  } catch {
+  } catch (err) {
     await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'IMAGE_FETCH_FAILED' });
-    console.error('[image-to-prompt] Failed to fetch image:', imageUrl);
+    console.error('[image-to-prompt] Failed to fetch image:', imageUrl, err);
     return;
   }
 
@@ -79,9 +79,9 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
     }
 
     await addToHistory({ ...base, ...result });
-  } catch {
+  } catch (err) {
     await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'API_CALL_FAILED' });
-    console.error('[image-to-prompt] Provider API call failed');
+    console.error('[image-to-prompt] Provider API call failed:', err);
   }
 }
 

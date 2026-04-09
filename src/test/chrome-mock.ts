@@ -2,6 +2,7 @@ import { vi, beforeEach } from 'vitest';
 
 const storageSyncData: Record<string, unknown> = {};
 const storageSessionData: Record<string, unknown> = {};
+const storageLocalData: Record<string, unknown> = {};
 
 global.chrome = {
   storage: {
@@ -21,6 +22,15 @@ global.chrome = {
       }),
       set: vi.fn(async (items: Record<string, unknown>) => {
         Object.assign(storageSessionData, items);
+      }),
+    },
+    local: {
+      get: vi.fn(async (keys: string | string[]) => {
+        const k = Array.isArray(keys) ? keys : [keys];
+        return Object.fromEntries(k.map((key) => [key, storageLocalData[key]]));
+      }),
+      set: vi.fn(async (items: Record<string, unknown>) => {
+        Object.assign(storageLocalData, items);
       }),
     },
     onChanged: {
@@ -46,5 +56,6 @@ global.chrome = {
 beforeEach(() => {
   for (const key of Object.keys(storageSyncData)) delete storageSyncData[key];
   for (const key of Object.keys(storageSessionData)) delete storageSessionData[key];
+  for (const key of Object.keys(storageLocalData)) delete storageLocalData[key];
   vi.clearAllMocks();
 });
