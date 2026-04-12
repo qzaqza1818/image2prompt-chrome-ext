@@ -1,4 +1,4 @@
-import type { PromptBreakdown } from '../../shared/types';
+import type { PromptBreakdown, JsonPrompt } from '../../shared/types';
 import { SYSTEM_PROMPT } from '../../shared/types';
 
 export async function analyzeWithGoogle(
@@ -6,7 +6,7 @@ export async function analyzeWithGoogle(
   mimeType: string,
   apiKey: string,
   model: string
-): Promise<{ fullPrompt: string; breakdown: PromptBreakdown }> {
+): Promise<{ fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown }> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
@@ -34,7 +34,7 @@ export async function analyzeWithGoogle(
   if (!text) {
     throw new Error('Google response missing content text');
   }
-  let parsed: { fullPrompt: string; breakdown: PromptBreakdown };
+  let parsed: { fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown };
   try {
     parsed = JSON.parse(text);
   } catch {

@@ -2,7 +2,7 @@ import { getSettings, addToHistory } from '../shared/storage';
 import { analyzeWithAnthropic } from './providers/anthropic';
 import { analyzeWithOpenAI } from './providers/openai';
 import { analyzeWithGoogle } from './providers/google';
-import type { AnalysisResult, AnalyzeMessage, PromptBreakdown } from '../shared/types';
+import type { AnalysisResult, AnalyzeMessage, AnalyzeInlineMessage, PromptBreakdown } from '../shared/types';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
@@ -20,19 +20,22 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message: AnalyzeMessage, sender) => {
-  if (message.type === 'ANALYZE_IMAGE' && sender.tab?.id) {
-    void handleAnalyze(message.imageUrl, sender.tab.id);
+chrome.runtime.onMessage.addListener((message: AnalyzeMessage | AnalyzeInlineMessage, sender) => {
+  if (!sender.tab?.id) return;
+  const tabId = sender.tab.id;
+
+  if (message.type === 'ANALYZE_IMAGE') {
+    void handleAnalyze(message.imageUrl, tabId);
+  } else if (message.type === 'ANALYZE_IMAGE_INLINE') {
+    void handleAnalyzeInline(message.imageUrl, tabId);
   }
 });
 
-async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
-  await chrome.sidePanel.open({ tabId });
-
+async function analyzeImage(imageUrl: string): Promise<AnalysisResult> {
   const settings = await getSettings();
   const apiKey = settings.apiKeys[settings.provider];
 
-  const base: Omit<AnalysisResult, 'fullPrompt' | 'breakdown' | 'error'> = {
+  const base: Omit<AnalysisResult, 'fullPrompt' | 'jsonPrompt' | 'breakdown' | 'error'> = {
     id: crypto.randomUUID(),
     imageUrl,
     provider: settings.provider,
@@ -41,9 +44,8 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
   };
 
   if (!apiKey) {
-    await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'NO_API_KEY' });
     console.warn('[image-to-prompt] No API key configured for provider:', settings.provider);
-    return;
+    return { ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'NO_API_KEY' };
   }
 
   let imageBase64: string;
@@ -52,23 +54,18 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
   try {
     const res = await fetch(imageUrl);
     const blob = await res.blob();
-    mimeType = blob.type;
-    if (!mimeType) {
-      console.warn('[image-to-prompt] Could not detect MIME type, falling back to image/jpeg');
-      mimeType = 'image/jpeg';
-    }
+    mimeType = blob.type || 'image/jpeg';
     const buffer = await blob.arrayBuffer();
     imageBase64 = btoa(
       Array.from(new Uint8Array(buffer), (b) => String.fromCharCode(b)).join('')
     );
   } catch (err) {
-    await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'IMAGE_FETCH_FAILED' });
     console.error('[image-to-prompt] Failed to fetch image:', imageUrl, err);
-    return;
+    return { ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'IMAGE_FETCH_FAILED' };
   }
 
   try {
-    let result: { fullPrompt: string; breakdown: PromptBreakdown };
+    let result: { fullPrompt: string; jsonPrompt?: Record<string, string>; breakdown: PromptBreakdown };
 
     if (settings.provider === 'anthropic') {
       result = await analyzeWithAnthropic(imageBase64, mimeType, apiKey, settings.model);
@@ -78,10 +75,26 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
       result = await analyzeWithGoogle(imageBase64, mimeType, apiKey, settings.model);
     }
 
-    await addToHistory({ ...base, ...result });
+    return { ...base, ...result };
   } catch (err) {
-    await addToHistory({ ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'API_CALL_FAILED' });
     console.error('[image-to-prompt] Provider API call failed:', err);
+    return { ...base, fullPrompt: '', breakdown: emptyBreakdown(), error: 'API_CALL_FAILED' };
+  }
+}
+
+async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
+  await chrome.sidePanel.open({ tabId });
+  const result = await analyzeImage(imageUrl);
+  await addToHistory(result);
+}
+
+async function handleAnalyzeInline(imageUrl: string, tabId: number): Promise<void> {
+  const result = await analyzeImage(imageUrl);
+  await addToHistory(result);
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: 'ANALYSIS_COMPLETE', result });
+  } catch (err) {
+    console.error('[image-to-prompt] Failed to send inline result to tab:', err);
   }
 }
 

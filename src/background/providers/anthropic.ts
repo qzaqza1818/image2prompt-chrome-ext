@@ -1,4 +1,4 @@
-import type { PromptBreakdown } from '../../shared/types';
+import type { PromptBreakdown, JsonPrompt } from '../../shared/types';
 import { SYSTEM_PROMPT } from '../../shared/types';
 
 export async function analyzeWithAnthropic(
@@ -6,7 +6,7 @@ export async function analyzeWithAnthropic(
   mimeType: string,
   apiKey: string,
   model: string
-): Promise<{ fullPrompt: string; breakdown: PromptBreakdown }> {
+): Promise<{ fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown }> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -43,7 +43,7 @@ export async function analyzeWithAnthropic(
   if (!text) {
     throw new Error(`Anthropic response missing content text`);
   }
-  let parsed: { fullPrompt: string; breakdown: PromptBreakdown };
+  let parsed: { fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown };
   try {
     parsed = JSON.parse(text);
   } catch {

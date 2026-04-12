@@ -14,7 +14,7 @@ export default defineConfig({
         sidepanel: resolve(__dirname, 'sidepanel.html'),
         options: resolve(__dirname, 'options.html'),
         'service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
-        content: resolve(__dirname, 'src/content/index.ts'),
+        // content script is built separately via vite.content.config.ts as IIFE
       },
       output: {
         entryFileNames: (chunk) => {

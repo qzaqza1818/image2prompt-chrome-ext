@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Image to Prompt</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #f9f9f9;
+      color: #222;
+      line-height: 1.7;
+      padding: 40px 20px 80px;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    header {
+      background: #111;
+      color: #fff;
+      padding: 36px 40px 28px;
+    }
+
+    .ext-label {
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 6px;
+    }
+
+    header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .updated {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    main {
+      padding: 40px 40px 48px;
+    }
+
+    section { margin-bottom: 36px; }
+
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    p { margin-bottom: 12px; font-size: 15px; color: #333; }
+
+    ul {
+      margin: 8px 0 12px 20px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    ul li { margin-bottom: 8px; }
+
+    .highlight {
+      background: #f4f4f4;
+      border-left: 3px solid #111;
+      border-radius: 4px;
+      padding: 14px 16px;
+      font-size: 14.5px;
+      color: #222;
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    th {
+      background: #f4f4f4;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      color: #111;
+      border-bottom: 2px solid #e8e8e8;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    a { color: #111; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { opacity: 0.7; }
+
+    .provider-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+
+    .provider-item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 15px;
+    }
+
+    .provider-name {
+      font-weight: 600;
+      color: #111;
+      min-width: 80px;
+    }
+
+    footer {
+      border-top: 1px solid #f0f0f0;
+      padding: 20px 40px;
+      font-size: 13px;
+      color: #999;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      header, main, footer { padding-left: 22px; padding-right: 22px; }
+      header { padding-top: 24px; padding-bottom: 20px; }
+      main { padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="ext-label">Chrome Extension</div>
+      <h1>🪄 Image to Prompt — Privacy Policy</h1>
+      <div class="updated">Last updated: April 12, 2026</div>
+    </header>
+
+    <main>
+
+      <!-- Overview -->
+      <section>
+        <h2>Overview</h2>
+        <div class="highlight">
+          <strong>Short version:</strong> Image to Prompt does not collect, transmit, or store any of your data on our servers. We have no servers. Your API keys stay in your browser, and images you analyse are sent directly from your browser to the AI provider you choose — we never see them.
+        </div>
+        <p>This policy explains in detail what data the extension handles locally in your browser and how it interacts with third-party AI services.</p>
+      </section>
+
+      <!-- Information We Handle -->
+      <section>
+        <h2>Information the Extension Handles</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Where it lives</th>
+              <th>Who can access it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>API Keys</strong><br/><span style="color:#888;font-size:13px">Anthropic, OpenAI, or Google</span></td>
+              <td><code>chrome.storage.sync</code><br/><span style="color:#888;font-size:13px">Synced across your Chrome sign-in</span></td>
+              <td>Only you and the AI provider you send requests to. Never us.</td>
+            </tr>
+            <tr>
+              <td><strong>Analysis History</strong><br/><span style="color:#888;font-size:13px">Up to 50 recent prompts</span></td>
+              <td><code>chrome.storage.local</code><br/><span style="color:#888;font-size:13px">On your device only</span></td>
+              <td>Only you. Stays on-device. You can clear it at any time.</td>
+            </tr>
+            <tr>
+              <td><strong>Selected App Preference</strong><br/><span style="color:#888;font-size:13px">Your chosen "Copy &amp; Open in" app</span></td>
+              <td><code>chrome.storage.local</code><br/><span style="color:#888;font-size:13px">On your device only</span></td>
+              <td>Only you.</td>
+            </tr>
+            <tr>
+              <td><strong>Image Data</strong><br/><span style="color:#888;font-size:13px">Images you choose to analyse</span></td>
+              <td>Not stored anywhere</td>
+              <td>Fetched, base64-encoded, sent directly to your chosen AI provider, then discarded. We never receive or store image data.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- How Data Is Used -->
+      <section>
+        <h2>How Your Data Is Used</h2>
+        <ul>
+          <li><strong>API keys</strong> are used exclusively to authenticate requests to the AI provider you select. They are read from local storage, attached to the API request header, and never logged or forwarded elsewhere.</li>
+          <li><strong>Images</strong> are fetched directly in your browser, converted to base64, and sent in a single API request to the AI provider. The response (the generated prompt) is displayed to you and saved to local history. Neither the image nor the prompt is sent to us.</li>
+          <li><strong>History</strong> is stored locally so you can review past results. It is never uploaded.</li>
+        </ul>
+      </section>
+
+      <!-- No Data Collection -->
+      <section>
+        <h2>What We Do Not Do</h2>
+        <ul>
+          <li>We do <strong>not</strong> operate any server or backend.</li>
+          <li>We do <strong>not</strong> collect analytics, crash reports, or usage statistics.</li>
+          <li>We do <strong>not</strong> use cookies or tracking technologies.</li>
+          <li>We do <strong>not</strong> sell, share, or monetise any data.</li>
+          <li>We do <strong>not</strong> have access to your API keys or browsing activity.</li>
+        </ul>
+      </section>
+
+      <!-- Third-Party Services -->
+      <section>
+        <h2>Third-Party AI Services</h2>
+        <p>When you analyse an image, the extension sends a request directly from your browser to the AI provider you have configured. Each provider has its own privacy policy governing how they handle data:</p>
+        <div class="provider-list">
+          <div class="provider-item">
+            <span class="provider-name">Anthropic</span>
+            <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>
+          </div>
+          <div class="provider-item">
+            <span class="provider-name">OpenAI</span>
+            <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">openai.com/policies/privacy-policy</a>
+          </div>
+          <div class="provider-item">
+            <span class="provider-name">Google</span>
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>
+          </div>
+        </div>
+        <p>We encourage you to review those policies. Image to Prompt does not control how these providers handle data once it reaches their APIs.</p>
+      </section>
+
+      <!-- Permissions -->
+      <section>
+        <h2>Chrome Permissions Explained</h2>
+        <table>
+          <thead>
+            <tr><th>Permission</th><th>Why it's needed</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>storage</code></td>
+              <td>To save your API keys, analysis history, and app preference locally in Chrome.</td>
+            </tr>
+            <tr>
+              <td><code>activeTab</code></td>
+              <td>To open the side panel on the current tab when analysis completes.</td>
+            </tr>
+            <tr>
+              <td><code>contextMenus</code></td>
+              <td>To add the "Convert to AI Prompt" right-click menu item on images.</td>
+            </tr>
+            <tr>
+              <td><code>sidePanel</code></td>
+              <td>To display the results panel alongside the page.</td>
+            </tr>
+            <tr>
+              <td><code>&lt;all_urls&gt;</code> host permission</td>
+              <td>To detect images on any webpage you visit and fetch their pixel data for analysis. The extension only acts when you explicitly click the Retrieve Prompt button or right-click an image.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Your Rights -->
+      <section>
+        <h2>Your Control Over Your Data</h2>
+        <p>Because all data is stored locally in your browser, you have full control:</p>
+        <ul>
+          <li><strong>Delete history</strong> — click "Clear history" in the side panel at any time.</li>
+          <li><strong>Remove API keys</strong> — go to the extension Settings page and clear the key fields.</li>
+          <li><strong>Remove all data</strong> — uninstalling the extension deletes all locally stored data automatically.</li>
+        </ul>
+      </section>
+
+      <!-- Children -->
+      <section>
+        <h2>Children's Privacy</h2>
+        <p>This extension is not directed at children under 13. We do not knowingly collect any personal information from children.</p>
+      </section>
+
+      <!-- Changes -->
+      <section>
+        <h2>Changes to This Policy</h2>
+        <p>If we make material changes to this privacy policy, we will update the "Last updated" date at the top of this page and note the change in the extension's GitHub repository. Continued use of the extension after changes are posted constitutes acceptance of the updated policy.</p>
+      </section>
+
+      <!-- Contact -->
+      <section>
+        <h2>Contact</h2>
+        <p>Have a question or concern about this policy? Open an issue on our GitHub repository:</p>
+        <p><a href="https://github.com/qzaqza1818/image2prompt-chrome-ext/issues" target="_blank" rel="noopener">github.com/qzaqza1818/image2prompt-chrome-ext/issues</a></p>
+      </section>
+
+    </main>
+
+    <footer>
+      &copy; 2026 Image to Prompt. This extension is open source.
+      <a href="https://github.com/qzaqza1818/image2prompt-chrome-ext" target="_blank" rel="noopener" style="margin-left:12px;">View on GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>

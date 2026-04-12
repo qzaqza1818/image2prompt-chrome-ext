@@ -20,13 +20,11 @@ export function DetailView({ result, onBack }: Props) {
     });
   }
 
-  const breakdownText = Object.entries(result.breakdown)
-    .map(([k, v]) => `${k}: ${v}`)
-    .join('\n');
+  const jsonText = JSON.stringify(result.jsonPrompt ?? result.breakdown, null, 2);
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', fontSize: 15 }}>
-      <div style={{ background: '#1a73e8', color: 'white', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ background: '#111', color: 'white', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
         <button onClick={onBack} aria-label="Back to history" style={{ background: 'none', border: 'none', color: 'white', fontSize: 18, cursor: 'pointer', padding: 0 }}>←</button>
         <span style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {result.fullPrompt.slice(0, 40) || 'Error'}
@@ -57,15 +55,23 @@ export function DetailView({ result, onBack }: Props) {
           </div>
 
           <div style={{ padding: '12px 14px' }}>
-            <div style={LABEL}>Breakdown</div>
-            {(['subject', 'style', 'mood', 'technical'] as const).map((key) => (
-              <div key={key} style={{ marginBottom: 5, fontSize: 14 }}>
-                <span style={{ color: '#1a73e8', fontWeight: 600, textTransform: 'capitalize' }}>{key}: </span>
-                <span style={{ color: '#333' }}>{result.breakdown[key]}</span>
-              </div>
-            ))}
-            <button onClick={() => copy(breakdownText)} style={{ ...copyBtnStyle, background: '#f1f3f4', color: '#555', marginTop: 6 }}>
-              Copy Breakdown
+            <div style={LABEL}>JSON</div>
+            <pre style={{
+              background: '#f8f9fa',
+              borderRadius: 4,
+              padding: 8,
+              margin: 0,
+              color: '#333',
+              fontSize: 12,
+              lineHeight: 1.55,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              fontFamily: "'SF Mono', Consolas, monospace",
+            }}>
+              {jsonText}
+            </pre>
+            <button onClick={() => copy(jsonText)} style={{ ...copyBtnStyle, background: '#f1f3f4', color: '#555', marginTop: 6 }}>
+              Copy JSON
             </button>
           </div>
         </>
