@@ -4,6 +4,11 @@
   "version": "1.1.0",
   "description": "Convert any image to an AI image generation prompt",
   "minimum_chrome_version": "114",
+  "icons": {
+    "16": "16x16.png",
+    "48": "48x48.png",
+    "128": "128x128.png"
+  },
   "permissions": ["contextMenus", "storage", "sidePanel", "activeTab"],
   "host_permissions": ["<all_urls>"],
   "background": {
