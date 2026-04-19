@@ -1,12 +1,21 @@
 import type { PromptBreakdown, JsonPrompt } from '../../shared/types';
 import { SYSTEM_PROMPT } from '../../shared/types';
 
+function stripFences(text: string): string {
+  return text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+}
+
 export async function analyzeWithOpenAI(
   imageBase64: string,
   mimeType: string,
   apiKey: string,
-  model: string
+  model: string,
+  aspectRatio?: string
 ): Promise<{ fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown }> {
+  const prompt = aspectRatio
+    ? `${SYSTEM_PROMPT}\n\nIMPORTANT: The actual measured pixel dimensions give an aspect ratio of exactly ${aspectRatio}. You MUST use "${aspectRatio}" as the aspect_ratio value in your JSON.`
+    : SYSTEM_PROMPT;
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -24,7 +33,7 @@ export async function analyzeWithOpenAI(
               type: 'image_url',
               image_url: { url: `data:${mimeType};base64,${imageBase64}` },
             },
-            { type: 'text', text: SYSTEM_PROMPT },
+            { type: 'text', text: prompt },
           ],
         },
       ],
@@ -43,7 +52,7 @@ export async function analyzeWithOpenAI(
   }
   let parsed: { fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown };
   try {
-    parsed = JSON.parse(text);
+    parsed = JSON.parse(stripFences(text));
   } catch {
     throw new Error(`OpenAI response was not valid JSON: ${text.slice(0, 200)}`);
   }

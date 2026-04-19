@@ -1,12 +1,21 @@
 import type { PromptBreakdown, JsonPrompt } from '../../shared/types';
 import { SYSTEM_PROMPT } from '../../shared/types';
 
+function stripFences(text: string): string {
+  return text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+}
+
 export async function analyzeWithGoogle(
   imageBase64: string,
   mimeType: string,
   apiKey: string,
-  model: string
+  model: string,
+  aspectRatio?: string
 ): Promise<{ fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown }> {
+  const prompt = aspectRatio
+    ? `${SYSTEM_PROMPT}\n\nIMPORTANT: The actual measured pixel dimensions give an aspect ratio of exactly ${aspectRatio}. You MUST use "${aspectRatio}" as the aspect_ratio value in your JSON.`
+    : SYSTEM_PROMPT;
+
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
@@ -17,7 +26,7 @@ export async function analyzeWithGoogle(
         {
           parts: [
             { inline_data: { mime_type: mimeType, data: imageBase64 } },
-            { text: SYSTEM_PROMPT },
+            { text: prompt },
           ],
         },
       ],
@@ -36,7 +45,7 @@ export async function analyzeWithGoogle(
   }
   let parsed: { fullPrompt: string; jsonPrompt?: JsonPrompt; breakdown: PromptBreakdown };
   try {
-    parsed = JSON.parse(text);
+    parsed = JSON.parse(stripFences(text));
   } catch {
     throw new Error(`Google response was not valid JSON: ${text.slice(0, 200)}`);
   }

@@ -3,10 +3,11 @@ import type { AnalyzeInlineMessage } from '../shared/types';
 
 interface Props {
   imageUrl: string;
+  aspectRatio?: string;
   onAnalyzing: () => void;
 }
 
-export function OverlayButton({ imageUrl, onAnalyzing }: Props) {
+export function OverlayButton({ imageUrl, aspectRatio, onAnalyzing }: Props) {
   const [loading, setLoading] = useState(false);
 
   function handleClick(e: React.MouseEvent) {
@@ -15,7 +16,7 @@ export function OverlayButton({ imageUrl, onAnalyzing }: Props) {
     if (loading) return;
     setLoading(true);
     onAnalyzing();
-    const message: AnalyzeInlineMessage = { type: 'ANALYZE_IMAGE_INLINE', imageUrl };
+    const message: AnalyzeInlineMessage = { type: 'ANALYZE_IMAGE_INLINE', imageUrl, aspectRatio };
     chrome.runtime.sendMessage(message);
   }
 

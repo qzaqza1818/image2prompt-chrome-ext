@@ -5,6 +5,18 @@ import { OverlayButton } from './overlay';
 import { PromptModal } from './modal';
 import type { AnalysisCompleteMessage, AnalysisResult } from '../shared/types';
 
+// --- Extension enabled state ---
+let extensionEnabled = true;
+chrome.storage.local.get('extensionEnabled').then((data) => {
+  extensionEnabled = data.extensionEnabled !== false;
+});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'extensionEnabled' in changes) {
+    extensionEnabled = changes.extensionEnabled.newValue !== false;
+    if (!extensionEnabled) { removeOverlay(); removeModal(); }
+  }
+});
+
 // --- Overlay state ---
 let overlayHostEl: HTMLElement | null = null;
 let overlayRoot: Root | null = null;
@@ -31,6 +43,32 @@ function removeModal() {
   modalHostEl = null;
 }
 
+function calcAspectRatio(w: number, h: number): string {
+  if (!w || !h) return '';
+  const ratio = w / h;
+  const standards = [
+    { label: '1:1',   value: 1 / 1 },
+    { label: '4:5',   value: 4 / 5 },
+    { label: '5:4',   value: 5 / 4 },
+    { label: '3:4',   value: 3 / 4 },
+    { label: '4:3',   value: 4 / 3 },
+    { label: '2:3',   value: 2 / 3 },
+    { label: '3:2',   value: 3 / 2 },
+    { label: '9:16',  value: 9 / 16 },
+    { label: '16:9',  value: 16 / 9 },
+    { label: '16:10', value: 16 / 10 },
+    { label: '9:21',  value: 9 / 21 },
+    { label: '21:9',  value: 21 / 9 },
+  ];
+  let closest = standards[0];
+  let minDiff = Math.abs(ratio - standards[0].value);
+  for (const s of standards.slice(1)) {
+    const diff = Math.abs(ratio - s.value);
+    if (diff < minDiff) { minDiff = diff; closest = s; }
+  }
+  return closest.label;
+}
+
 function showOverlay(img: HTMLImageElement) {
   const src = img.currentSrc || img.src;
   if (!src || src.startsWith('data:')) return;
@@ -42,6 +80,8 @@ function showOverlay(img: HTMLImageElement) {
 
   currentImg = img;
   currentImgRect = rect;
+
+  const aspectRatio = calcAspectRatio(img.naturalWidth, img.naturalHeight);
 
   const host = document.createElement('div');
   host.style.cssText = [
@@ -66,6 +106,7 @@ function showOverlay(img: HTMLImageElement) {
   overlayRoot.render(
     createElement(OverlayButton, {
       imageUrl: src,
+      aspectRatio,
       onAnalyzing: () => { isAnalyzing = true; },
     })
   );
@@ -159,6 +200,7 @@ function findImg(e: MouseEvent): HTMLImageElement | null {
 
 // Use capture:true so Pinterest/other SPAs can't block us with stopPropagation
 document.addEventListener('mouseover', (e) => {
+  if (!extensionEnabled) return;
   if (hideTimer) {
     clearTimeout(hideTimer);
     hideTimer = null;

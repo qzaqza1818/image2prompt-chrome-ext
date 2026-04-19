@@ -7,11 +7,15 @@ function Popup() {
   const [latest, setLatest] = useState<AnalysisResult | null>(null);
   const [copiedFull, setCopiedFull] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const timerFull = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timerJson = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     getHistory().then((h) => setLatest(h[0] ?? null));
+    chrome.storage.local.get('extensionEnabled').then((data) => {
+      setEnabled(data.extensionEnabled !== false);
+    });
   }, []);
 
   useEffect(() => () => {
@@ -46,6 +50,12 @@ function Popup() {
 
   function openOptions() {
     chrome.runtime.openOptionsPage();
+  }
+
+  function toggleEnabled() {
+    const next = !enabled;
+    setEnabled(next);
+    chrome.storage.local.set({ extensionEnabled: next });
   }
 
   const jsonText = latest ? JSON.stringify(latest.jsonPrompt ?? latest.breakdown, null, 2) : '';
@@ -112,6 +122,16 @@ function Popup() {
           </svg>
           Settings
         </button>
+        <button onClick={toggleEnabled} style={enabled ? enabledBtn : disabledBtn}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
+            {enabled
+              ? <path d="M4.5 6.5l1.5 1.5 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              : <path d="M4.5 4.5l4 4M8.5 4.5l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            }
+          </svg>
+          {enabled ? 'Enabled' : 'Disabled'}
+        </button>
       </div>
     </div>
   );
@@ -153,6 +173,18 @@ const footerBtn: React.CSSProperties = {
   fontSize: 12.5,
   fontWeight: 600,
   cursor: 'pointer',
+};
+
+const enabledBtn: React.CSSProperties = {
+  ...footerBtn,
+  background: '#e6f4ea',
+  color: '#1a7a3c',
+};
+
+const disabledBtn: React.CSSProperties = {
+  ...footerBtn,
+  background: '#f1f3f4',
+  color: '#999',
 };
 
 createRoot(document.getElementById('root')!).render(

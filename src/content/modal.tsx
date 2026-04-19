@@ -48,7 +48,7 @@ export function PromptModal({ result, onClose }: Props) {
   }
 
   function copyAndOpen() {
-    copyText(currentContent);
+    copyText(result.fullPrompt); // always fullPrompt — apps don't accept JSON
     window.open(selectedApp.url, '_blank', 'noopener');
   }
 

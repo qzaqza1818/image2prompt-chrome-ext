@@ -8,6 +8,7 @@ export interface PromptBreakdown {
 }
 
 export interface JsonPromptOverview {
+  image_type: string;
   theme: string;
   scene_type: string;
   style: string;
@@ -57,6 +58,7 @@ export interface AnalyzeMessage {
 export interface AnalyzeInlineMessage {
   type: 'ANALYZE_IMAGE_INLINE';
   imageUrl: string;
+  aspectRatio?: string;
 }
 
 export interface AnalysisCompleteMessage {
@@ -82,18 +84,26 @@ export const PROVIDER_MODELS: Record<Provider, { id: string; label: string }[]> 
     { id: 'gpt-4o', label: 'gpt-4o (quality)' },
   ],
   google: [
-    { id: 'gemini-1.5-flash', label: 'gemini-1.5-flash (fast)' },
-    { id: 'gemini-1.5-pro', label: 'gemini-1.5-pro (quality)' },
+    { id: 'gemini-2.0-flash', label: 'gemini-2.0-flash (fast)' },
+    { id: 'gemini-2.5-pro', label: 'gemini-2.5-pro (quality)' },
   ],
 };
 
 export const SYSTEM_PROMPT = `Analyze this image and generate an AI image generation prompt.
 
-Return ONLY valid JSON in this exact format, no markdown, no code fences, no explanation:
+STEP 1 — Classify the image type. It MUST be exactly one of:
+- "photorealistic photography"
+- "2D illustration / digital art"
+- "3D render"
+- "anime / cartoon"
+- "oil painting / watercolor"
+
+STEP 2 — Return ONLY valid JSON in this exact format, no markdown, no code fences, no explanation:
 {
-  "fullPrompt": "A single rich descriptive paragraph ready to paste into any AI image generator, covering subject, style, lighting, mood, colors, and technical details",
+  "fullPrompt": "MUST open with the image type (e.g. 'Photorealistic photography of...', '2D illustration of...', 'Anime / cartoon of...'). Then one rich paragraph covering: subject description, art style, lighting, mood, color palette, framing, camera angle, lens type, and depth of field. Include enough detail to recreate the image accurately.",
   "jsonPrompt": {
     "overview": {
+      "image_type": "MUST be exactly one of: photorealistic photography | 2D illustration / digital art | 3D render | anime / cartoon | oil painting / watercolor",
       "theme": "main theme or concept",
       "scene_type": "type of scene or setting",
       "style": "art style and rendering quality",

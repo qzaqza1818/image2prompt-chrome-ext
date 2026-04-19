@@ -27,11 +27,11 @@ chrome.runtime.onMessage.addListener((message: AnalyzeMessage | AnalyzeInlineMes
   if (message.type === 'ANALYZE_IMAGE') {
     void handleAnalyze(message.imageUrl, tabId);
   } else if (message.type === 'ANALYZE_IMAGE_INLINE') {
-    void handleAnalyzeInline(message.imageUrl, tabId);
+    void handleAnalyzeInline(message.imageUrl, tabId, message.aspectRatio);
   }
 });
 
-async function analyzeImage(imageUrl: string): Promise<AnalysisResult> {
+async function analyzeImage(imageUrl: string, aspectRatio?: string): Promise<AnalysisResult> {
   const settings = await getSettings();
   const apiKey = settings.apiKeys[settings.provider];
 
@@ -68,11 +68,11 @@ async function analyzeImage(imageUrl: string): Promise<AnalysisResult> {
     let result: { fullPrompt: string; jsonPrompt?: Record<string, string>; breakdown: PromptBreakdown };
 
     if (settings.provider === 'anthropic') {
-      result = await analyzeWithAnthropic(imageBase64, mimeType, apiKey, settings.model);
+      result = await analyzeWithAnthropic(imageBase64, mimeType, apiKey, settings.model, aspectRatio);
     } else if (settings.provider === 'openai') {
-      result = await analyzeWithOpenAI(imageBase64, mimeType, apiKey, settings.model);
+      result = await analyzeWithOpenAI(imageBase64, mimeType, apiKey, settings.model, aspectRatio);
     } else {
-      result = await analyzeWithGoogle(imageBase64, mimeType, apiKey, settings.model);
+      result = await analyzeWithGoogle(imageBase64, mimeType, apiKey, settings.model, aspectRatio);
     }
 
     return { ...base, ...result };
@@ -88,8 +88,8 @@ async function handleAnalyze(imageUrl: string, tabId: number): Promise<void> {
   await addToHistory(result);
 }
 
-async function handleAnalyzeInline(imageUrl: string, tabId: number): Promise<void> {
-  const result = await analyzeImage(imageUrl);
+async function handleAnalyzeInline(imageUrl: string, tabId: number, aspectRatio?: string): Promise<void> {
+  const result = await analyzeImage(imageUrl, aspectRatio);
   await addToHistory(result);
   try {
     await chrome.tabs.sendMessage(tabId, { type: 'ANALYSIS_COMPLETE', result });
